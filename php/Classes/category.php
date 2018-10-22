@@ -1,8 +1,9 @@
 <?php
 
 namespace berninagray\dataDesign;
-require_once(dirname(__DIR_,2_)) . "vendor"
-use Ramsey\Uuid\Uuid
+require_once("autoload.php");
+require_once(dirname(__DIR__,2). "./vendor/autoload.php");
+use Ramsey\Uuid\Uuid;
 
 
 /**
