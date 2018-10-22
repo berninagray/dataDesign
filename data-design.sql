@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS article;
 
 create table category(
 	categoryId binary(16) not null,
-	castegoryName varchar(32) not null
+	categoryName varchar(32) not null
 );
 
 create table article(
