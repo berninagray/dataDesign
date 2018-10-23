@@ -49,8 +49,8 @@ class article {
 	 * constructor for this article
 	 *
 	 * article constructor.
-	 * @param Uuid $newArticleId
-	 * @param Uuid $newArticleCategoryId
+	 * @param string|Uuid $newArticleId
+	 * @param string|Uuid $newArticleCategoryId
 	 * @param string $newArticleContent
 	 * @param \DateTime|string|null $newArticleDate date and time article was published or null if set to current date and time
 	 * @param string $newArticleName
@@ -58,20 +58,21 @@ class article {
 	 * @throws \TypeError if data types violate type hints
 	 * @throws \Exception if some other exception occurs
 	 **/
-	public function __construct(Uuid $newArticleId, Uuid $newArticleCategoryId, string $newArticleContent, $newArticleDate = null, string $newArticleName, $exceptionType) {
+	public function __construct($newArticleId, $newArticleCategoryId, string $newArticleContent, $newArticleDate = null, string $newArticleName, $exceptionType) {
 		try {
 			$this->setArticleId($newArticleId);
 			$this->setArticleCategoryId($newArticleCategoryId);
 			$this->setArticleContent($newArticleContent);
 			$this->setArticleDate($newArticleDate);
 			$this->setArticleName($newArticleName);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-			$exception = get_class($exception);
+		}
+			//determine what exception type was thrown
+		catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
 			$exceptionType = get_class($exception);
 			throw(new $exceptionType($exception->getMessage(), 0, $exception));
 		}
 	}
-	/** accesor method for article id
+	/** accessor method for article id
 	 *
 	 * @return Uuid value of article id
 	 **/
@@ -100,6 +101,90 @@ class article {
 	}
 	/**
 	 * accessor method for article category id
-	 */
+	 *
+	 * @return Uuid value of of article category id
+	 **/
+	public function getArticleCategoryId() : Uuid {
+		return ($this->articleCategoryId);
+
+		//this outside of class
+	}
+
+	/** mutator method for article category id
+	 *
+	 * @param Uuid|string $newArticleCategoryId
+	 * @throws \RangeException if $newArticleCategoryId is not positive
+	 * @throws \TypeError if $newArticleCategoryId is not a uuid or string
+	 **/
+	public function setArticleCategoryId( $newArticleCategoryId) : void {
+		try {
+			$uuid = self::validateUuid($newArticleCategoryId);
+		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
+		}
+
+		//convert and store the article category id
+		$this->articleCategoryIdId = $uuid;
+	}
+	/** accessor method for article content
+	 *
+	 *@return string value of article content
+	 **/
+	public function getArticleContent() : string {
+		return($this->articleContent);
+	}
+
+	/**
+	 * mutator method for article content
+	 *
+	 * @param string $newArticleContent new value of article content
+	 * @throws \InvalidArgumentException | if $newArticleContent is not a string or insecure
+	 * @throws \RangeException if $newArticleContent is > 32 characters
+	 * @throws \TypeError if $newArticleContent is not a string
+	 **/
+	public function setArticleContent(string $newArticleContent) : void {
+		//verify the tweet content is secure
+		$newArticleContent = trim($newArticleContent);
+		$newArticleContent = filter_var($newArticleContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		if (empty($newArticleContent) === true) {
+			throw(new \InvalidArgumentException("article content is empty or insecure"));
+	}
+
+		//verify the article content will fit in the database
+		if(strlen($newArticleContent) >= 140) {
+			throw(new \RangeException("article content too large"));
+	}
+
+		//store the article content
+		$this->articleContent = $newArticleContent;
+	}
+	/**
+	 * accessor method for article date
+	 *
+	 * @return \DateTime value of article date
+	 **/
+	public function getArticleDate() : \DateTime {
+	return ($this->tweetDate);
+	}
+
+	/** mutator mthod for article content date
+	 *
+	 * @param \DateTime|string|null $newArticleDate article date as a DateTime object or string (or null to load the current time)
+	 * @throws \InvalidArgumentException if $newArticleDate is not a valid object or string
+	 * @throws \RangeException if $newArticleDate is a date that does not exist
+	 **/
+	public function setArticleDate($newArticleDate = null) : void {
+		//base case: if the date is null, use the current date and time
+		if($newArticleDate === null) {
+			$this->articleDate = new \DateTime();
+			return;
+		}
+
+		//store the article date using the validateDate trait
+		try $newArticleDate = self::validateDateTime($newArticleDate);
+		}  catch(\InvalidArgumentException | \RangeException $exception) {
+
 }
+
+}
+
 
