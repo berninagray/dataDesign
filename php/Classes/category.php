@@ -31,7 +31,7 @@ class category {
 	 * constructor for this category
 	 *category constructor.
 	 * @param Uuid $newCategoryId
-	 * @param string $categoryName
+	 * @param string $newCategoryName
 	 */
 	public function __construct(Uuid $newCategoryId, string $newCategoryName) {
 		try{
