@@ -180,11 +180,14 @@ class article {
 		}
 
 		//store the article date using the validateDate trait
-		try $newArticleDate = self::validateDateTime($newArticleDate);
-		}  catch(\InvalidArgumentException | \RangeException $exception) {
-
-}
-
+		try {
+			$newArticleDate = self::validateDateTime($newArticleDate);
+		} catch(\InvalidArgumentException | \RangeException $exception) {
+			$exceptionType = get_class($exception);
+			throw(new $exceptionType($exception->getMessage(), 0, $exception));
+	}
+	$this->articleDate = $newArticleDate;
+	}
 }
 
 
