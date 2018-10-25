@@ -2,7 +2,7 @@
 
 namespace berninagray\dataDesign;
 require_once("autoload.php");
-require_once(dirname(__DIR__, .2). "/vendor/autoload.php");
+require_once(dirname(__DIR__, 2). "/vendor/autoload.php");
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -58,7 +58,7 @@ class article {
 	 * @throws \TypeError if data types violate type hints
 	 * @throws \Exception if some other exception occurs
 	 **/
-	public function __construct($newArticleId, $newArticleCategoryId, string $newArticleContent, $newArticleDate = null, string $newArticleName, $exceptionType) {
+	public function __construct(Uuid $newArticleId, Uuid $newArticleCategoryId, string $newArticleContent, $newArticleDate = null, string $newArticleName, $exceptionType) {
 		try {
 			$this->setArticleId($newArticleId);
 			$this->setArticleCategoryId($newArticleCategoryId);
@@ -187,6 +187,64 @@ class article {
 			throw(new $exceptionType($exception->getMessage(), 0, $exception));
 	}
 	$this->articleDate = $newArticleDate;
+	}
+	/** PDO methods
+	 *
+	 * insert category name into mySQL
+	 *
+	 * @param \PDO $pdo PDO connection object
+	 * @throws \PDOException when mySQL related errors occur
+	 * @throws \TypeError if $pdo is not a PDO connection object
+	 * **/
+	public function insert(\PDO $pdo) : void {
+	//Adding a new article to the database
+		$query = "INSERT INTO article(articleId, $this->articleCategoryId, $this->articleContent, articleDate, articleName)";
+		$statement = $pdo->prepare($query);
+
+		//bind the member variables to the place holders in the template
+		$formattedDate = $this->articleDate->format("Y-m-d H:i:s:u");
+		$parameters = ["articleId" => $formattedDate];
+		$statement->execute($parameters);
+	}
+	/** deletes this article from mySQL
+	 *
+	 * @param \PDO $pdo PDO connection object
+	 * @throws \PDOException when mySQL related errors occur
+	 * @throws \TypeError if $pdo is not a PDO connection object
+	 **/
+	public function delete(\PDO $pdo) : void {
+		//create query template
+		$query = "DELETE FROM article WHERE articleId = :articleId";
+		$statement->execute($parameters);
+	}
+	/**
+	 * updates this Article in mySQL
+	 *
+	 * @param \PDO $pdo PDO connection object
+	 * @param \PDOException when mySQL related errors occur
+	 * @throws \TypeError if $pdo is not a PDO connection object
+	 **/
+	public function update(\PDO $pdo) : void {
+
+		//create query template
+		$query = "UPDATE article SET articleCategoryIdId = :articleCategoryID, articleContent = :articleContent, articleDate = :articleDate WHERE articleId = :articleId:";
+		$statement = $pdo->prepare($query);
+
+
+		$formattedDate = $pdo->prepare($query);
+		$parameters = ["articleId" => $this->articleId->getBytes(), "articleCategoryId" = $this->articleCategoryId->getBytes(), "articleContent" => $this->articleContent, "articleDate" = $formattedDate];
+		$statement = $pdo->prepare($query);
+	}
+	/** gets the article by articleId
+	 *
+	 * @param \PDO $pdo PDO connection object
+	 * @param Uuid|string $articleId article id top search for
+	 * @return article|null article found or null if not found
+	 * @throws \PDOException when mySQL related errors occur
+	 * @throws \TypeError when a variable are not the correct data type
+	 **/
+	public static function getArticleByArticleId(\PDO $pdo, $articleId) : ?Article {
+		//sanitize the articleId before searching
 	}
 }
 
