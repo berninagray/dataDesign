@@ -245,7 +245,45 @@ class article {
 	 **/
 	public static function getArticleByArticleId(\PDO $pdo, $articleId) : ?Article {
 		//sanitize the articleId before searching
+		try {
+			$articleId = self::validateUuid(($articleId);
+		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
+			throw(new \PDOException($exception->getMessage(), 0, $exception));
+		}
+		// create query template
+		$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleId = :articleId":
+		$statement = $pdo->prepare($query);
+
+		// bind the article id to the place holder in the template
+		$parameters = ["articleId" => $articleId->getBytes()];
+		$statement->execute($parameters);
+
+		// build an array of articles
+		$articles = new \SplFixedArray($statement->rowCount());
+		$statement->setFetchMode(\PDO::FETCH_ASSOC);
+		while(($row = $statement->fetch()) !== false) {
+		try {
+			$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
+			$articles[->key()] = $article;
+			$article->next();
+		} catch(\Exception $exception) {
+			//if the row couldn't be converted, rethrow it
+			throw(new \PDOException($exception->getMessage(), 0, $exception));
+		}
+		return($article);
+
 	}
+
+	/**
+	 * gets the article by content
+	 *
+	 * @param \PDO $pdo PDO connection object
+	 * @param string $articleContent article content to search for
+	 * @return \SplFixedArray SplFixedArray of Articles found
+	 * @throws \PDOException when mySql related errors occur
+	 * @throws \TypeError when variables are not the correct data type
+	 **/
+	public static function getArticleByArticleContent(\PDO $pdo )
 }
 
 
