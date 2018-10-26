@@ -283,7 +283,23 @@ class article {
 	 * @throws \PDOException when mySql related errors occur
 	 * @throws \TypeError when variables are not the correct data type
 	 **/
-	public static function getArticleByArticleContent(\PDO $pdo )
+	public static function getArticleByArticleContent(\PDO $pdo, string $articleContent) : \SplFixedArray {
+		// sanitize the description before searching
+		$articleContent = trim($aritcleContent);
+		$articleContent = filter_var($articleContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		if(empty($articleContent) === true) {
+			throw(new \PDOException("article content is valid"));
+		}
+
+		// escape any mySQL wild cards
+			$articleContent = str_replace("_", "\\_", str_replace("%", "\\%", $articleContent));
+
+		// create query template
+		$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleContent LIKE :articleContent";
+		$statement = $pdo->prepare($query);
+
+		//bind the article content to the place holder in the template
+
 }
 
 
