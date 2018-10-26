@@ -332,10 +332,31 @@ class article {
 			$statement = $pdo->prepare($query);
 			while(($row = $statement->fetch()) !== false) {
 				try {
-					$article = new Article($row["articleId"], $row["articleCategoryId"])
+					$article = new Article($row["articleId"], $row["articleCategoryId"] $row["articleContent"], $row["articleDate"]);
+					$articles[$articles->key()]= $article;
+					$articles->next();
+				} catch(\Exception $exception) {
+					// if the row couldn't be converted, rethrow it
+					throw(new \PDOException($exception->getMessage(), 0, $exception));
 				}
 			}
+			return ($articles);
 		}
+
+		/**
+		 *formats the state variables for JSON serialization
+		 *
+		 * @ return array resulting state variables to serialize
+		 **/
+		public function jsonSerialize() : array {
+			$fields = get_object_vars($this);
+
+			$fields["articleId"] = $this->articleId->toString();
+			$fields["articleCategoryId"] = $this->getArticleCategoryId->toString();
+
+			//format the date so that the font end can consume it
+			$fields["articleDate"] = round(floatval($this->articleDate->format("U.u")) * 1000);
+			return($fields);
 		}
 }
 
