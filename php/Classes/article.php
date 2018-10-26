@@ -321,7 +321,22 @@ class article {
 		/**
 		 * gets all Articles
 		 *
-		 * @param \PDO
-		 */
+		 * @param \PDO $pdo PDO connection object
+		 * @returnm\SplFixedArray of Articles found or null if not found
+		 * @throws \PDOException when mySQL related errors occur
+		 * @throws \TypeError when variables are not the correct data type
+		 **/
+		public static function getAllArticles(\PDO $pdo) : \SplFixedArray {
+			// create query template
+			$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article";
+			$statement = $pdo->prepare($query);
+			while(($row = $statement->fetch()) !== false) {
+				try {
+					$article = new Article($row["articleId"], $row["articleCategoryId"])
+				}
+			}
+		}
+		}
+}
 
 
