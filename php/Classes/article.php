@@ -299,7 +299,29 @@ class article {
 		$statement = $pdo->prepare($query);
 
 		//bind the article content to the place holder in the template
+		$articleContent = "%articleContent%";
+		$parameters = ["articleContent" => $articleContent];
+		$statement->execute($parameters);
 
+		// build an array of articles
+		$articles = new \SplFixedArray(($statement->rowCount());
+		$statement->setFetchMode(\PDO::FETCH_ASSOC);
+		while(($row = $statement->fetch()) !== false) {
+			try {
+				$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
+				$articles[$articles->key()] = $article;
+				$articles->next();
+			} catch(\Exception $exception) {
+				// if the row couldn't be converted, rethrow it
+				throw(new \PDOException($exception->getMessage(), 0, $exception));
+			}
+		}
+		return($articles);
 }
+		/**
+		 * gets all Articles
+		 *
+		 * @param \PDO
+		 */
 
 
