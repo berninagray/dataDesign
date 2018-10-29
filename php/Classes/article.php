@@ -73,114 +73,7 @@ class article {
 		}
 	}
 
-	/** gets the article by articleId
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param Uuid|string $articleId article id top search for
-	 * @return article|null article found or null if not found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when a variable are not the correct data type
-	 **/
-	public static function getArticleByArticleId(\PDO $pdo, $articleId) : ?article {
-		//sanitize the articleId before searching
-		try {
-			$articleId = self::validateUuid(($articleId);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-			throw(new \PDOException($exception->getMessage(), 0, $exception));
-		}
-		// create query template
-		$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleId = :articleId";
-		$statement = $pdo->prepare($query);
 
-		// bind the article id to the place holder in the template
-		$parameters = ["articleId" => $articleId->getBytes()];
-		$statement->execute($parameters);
-
-		// build an array of articles
-		$articles = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-		try {
-			$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
-			$articles[$articles->key()] = $article;
-			$article->next();
-		} catch(\Exception $exception) {
-			//if the row couldn't be converted, rethrow it
-			throw(new \PDOException($exception->getMessage(), 0, $exception));
-		}
-		return($article);
-
-	}
-
-	/**
-	 * gets the article by content
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param string $articleContent article content to search for
-	 * @return \SplFixedArray SplFixedArray of Articles found
-	 * @throws \PDOException when mySql related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-		public function getArticleByArticleContent(\PDO $pdo, string $articleContent) : \SplFixedArray {
-		// sanitize the description before searching
-		$articleContent = trim($articleContent);
-		$articleContent = filter_var($articleContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($articleContent) === true) {
-			throw(new \PDOException("article content is valid"));
-		}
-
-		// escape any mySQL wild cards
-			$articleContent = str_replace("_", "\\_", str_replace("%", "\\%", $articleContent));
-
-		// create query template
-		$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleContent LIKE :articleContent";
-		$statement = $pdo->prepare($query);
-
-		//bind the article content to the place holder in the template
-		$articleContent = "%articleContent%";
-		$parameters = ["articleContent" => $articleContent];
-		$statement->execute($parameters);
-
-		// build an array of articles
-		$articles = new \SplFixedArray(($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
-				$articles[$articles->key()] = $article;
-				$articles->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return($articles);
-	}
-		/**
-		 * gets all Articles
-		 *
-		 * @param \PDO $pdo PDO connection object
-		 * @return\SplFixedArray of Articles found or null if not found
-		 * @throws \PDOException when mySQL related errors occur
-		 * @throws \TypeError when variables are not the correct data type
-		 **/
-		public static function getAllArticles(\PDO $pdo) : \SplFixedArray {
-			// create query template
-			$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article";
-			$statement = $pdo->prepare($query);
-			while(($row = $statement->fetch()) !== false) {
-				try {
-					$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
-					$articles[$articles->key()] = $article;
-					$articles->next();
-				} catch(\Exception $exception) {
-					// if the row couldn't be converted, rethrow it
-					throw(new \PDOException($exception->getMessage(), 0, $exception));
-				}
-			}
-			return ($articles);
-
-		}
 	/** accessor method for article id
 	 *
 	 * @return Uuid value of article id
@@ -352,11 +245,120 @@ class article {
 
 
 		$formattedDate = $pdo->prepare($query);
-		$parameters = ["articleId" => $this->articleId->getBytes(), "articleCategoryId" = $this->articleCategoryId->getBytes(), "articleContent" => $this->articleContent, "articleDate" = $formattedDate];
+		$parameters = ["articleId" => $this->articleId->getBytes(), "articleCategoryId"=> $this->articleCategoryId->getBytes(), "articleContent" => $this->articleContent, "articleDate"=> $formattedDate];
 		$statement = $pdo->prepare($query);
 	}
-}
+/** gets the article by articleId
+ *
+ * @param \PDO $pdo PDO connection object
+ * @param Uuid|string $articleId article id top search for
+ * @return article|null article found or null if not found
+ * @throws \PDOException when mySQL related errors occur
+ * @throws \TypeError when a variable are not the correct data type
+ **/
+public static function getArticleByArticleId(\PDO $pdo, $articleId) : ?article {
+	//sanitize the articleId before searching
+	try {
+		$articleId = self::validateUuid(($articleId));
+	} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
+		throw(new \PDOException($exception->getMessage(), 0, $exception));
+	}
+	// create query template
+	$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleId = :articleId";
+	$statement = $pdo->prepare($query);
+	// bind the article id to the place holder in the template
+	$parameters = ["articleId" => $articleId->getBytes()];
+	$statement->execute($parameters);
 
+	// build an array of articles
+	$articles = new \SplFixedArray($statement->rowCount());
+	$statement->setFetchMode(\PDO::FETCH_ASSOC);
+	while(($row = $statement->fetch()) !== false) {
+		try {
+			$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
+			$articles[$articles->key()] = $article;
+			$article->next();
+		} catch(\Exception $exception) {
+			//if the row couldn't be converted, rethrow it
+			throw(new \PDOException($exception->getMessage(), 0, $exception));
+		}
+		return ($article);
+		}
+	}
+
+	/**
+	 * gets the article by content
+	 *
+	 * @param \PDO $pdo PDO connection object
+	 * @param string $articleContent article content to search for
+	 * @return \SplFixedArray SplFixedArray of Articles found
+	 * @throws \PDOException when mySql related errors occur
+	 * @throws \TypeError when variables are not the correct data type
+	 **/
+	public function getArticleByArticleContent(\PDO $pdo, string $articleContent) : \SplFixedArray {
+		// sanitize the description before searching
+		$articleContent = trim($articleContent);
+		$articleContent = filter_var($articleContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		if(empty($articleContent) === true) {
+			throw(new \PDOException("article content is valid"));
+		}
+
+		// escape any mySQL wild cards
+		$articleContent = str_replace("_", "\\_", str_replace("%", "\\%", $articleContent));
+
+		// create query template
+		$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleContent LIKE :articleContent";
+		$statement = $pdo->prepare($query);
+
+		//bind the article content to the place holder in the template
+		$articleContent = "%articleContent%";
+		$parameters = ["articleContent" => $articleContent];
+		$statement->execute($parameters);
+
+		// build an array of articles
+		$articles = new \SplFixedArray(($statement->rowCount()));
+		$statement->setFetchMode(\PDO::FETCH_ASSOC);
+		while(($row = $statement->fetch()) !== false) {
+			try {
+				$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
+				$articles[$articles->key()] = $article;
+				$articles->next();
+			} catch(\Exception $exception) {
+				// if the row couldn't be converted, rethrow it
+				throw(new \PDOException($exception->getMessage(), 0, $exception));
+			}
+		}
+		return($articles);
+	}
+	/**
+	 * gets all Articles
+	 *
+	 * @param \PDO $pdo PDO connection object
+	 * @return\SplFixedArray of Articles found or null if not found
+	 * @throws \PDOException when mySQL related errors occur
+	 * @throws \TypeError when variables are not the correct data type
+	 **/
+	public static function getAllArticles(\PDO $pdo) : \SplFixedArray {
+		// create query template
+		$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article";
+		$statement = $pdo->prepare($query);
+		//TODO
+		/** Build an  array of articles - SPl fixed array command  */
+		$articles=new \SplFixedArray($statement->rowCount());
+		$statement->setFetchMode( \PDO::FECTH_ASSOC);
+		while(($row = $statement->fetch()) !== false) {
+			try {
+				$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
+				$articles[$articles->key()] = $article;
+				$articles->next();
+			} catch(\Exception $exception) {
+				// if the row couldn't be converted, rethrow it
+				throw(new \PDOException($exception->getMessage(), 0, $exception));
+			}
+		}
+		return ($articles);
+
+	}
 	/**
 	 *formats the state variables for JSON serialization
 	 *
