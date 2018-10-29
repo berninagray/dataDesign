@@ -155,7 +155,7 @@ class article {
 			}
 		}
 		return($articles);
-		}
+	}
 		/**
 		 * gets all Articles
 		 *
