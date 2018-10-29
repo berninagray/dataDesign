@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Conceptual Model</title>
+	</head>
+	<body>
+		<div>
+			<h2>Conceptual Model</h2>
+		</div>
+		<div><h3>Entities & Attributes</h3>
+		</div>
+		<div>
+			<strong>Category</strong>
+				<ul>
+				<li>categoryId (primary key)</li>
+				<li>categoryName</li>
+				</ul>
+		</div>
+		<div>
+			<strong>Article</strong>
+			<ul>
+				<li>articleId (primary key)</li>
+				<li>articleCategoryId (foreign key)</li>
+				<li>articleContent</li>
+				<li>articleDate</li>
+				<li>articleName</li>
+			</ul>
+		</div>
+		<div>
+			<strong>Relationships</strong>
+			<ul>
+				<li>One category can have many articles (1 to n)</li>
+			</ul>
+		</div>
+	</body>
+</html>
