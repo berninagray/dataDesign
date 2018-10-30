@@ -82,7 +82,7 @@ class article {
 		return($this->articleId);
 
 		//this outside of class
-		//$tweet->getArticleId();
+		//$article->getArticleId();
 	}
 
 	/**
@@ -95,7 +95,8 @@ class article {
 		try {
 			$uuid = self::validateUuid($newArticleId);
 		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-
+			$exceptionType = get_class($exception);
+			throw(new $exceptionType($exception->getMessage(), 0, $exception));
 		}
 
 		//convert and store the article id
@@ -122,11 +123,13 @@ class article {
 	public function setArticleCategoryId( $newArticleCategoryId) : void {
 		try {
 			$uuid = self::validateUuid($newArticleCategoryId);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
+		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception){
+		$exceptionType = get_class($exception);
+		throw(new $exceptionType($exception->getMessage(), 0, $exception));
 		}
 
 		//convert and store the article category id
-		$this->articleCategoryIdId = $uuid;
+		$this->articleCategoryId = $uuid ;
 	}
 
 	/** accessor method for article content
@@ -147,6 +150,7 @@ class article {
 	 **/
 	public function setArticleContent(string $newArticleContent) : void {
 		//verify the tweet content is secure
+		/** @var $newArticleContent */
 		$newArticleContent = trim($newArticleContent);
 		$newArticleContent = filter_var($newArticleContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
 		if (empty($newArticleContent) === true) {
@@ -154,7 +158,7 @@ class article {
 	}
 
 		//verify the article content will fit in the database
-		if(strlen($newArticleContent) >= 140) {
+		if(strlen($newArticleContent) >= 8192) {
 			throw(new \RangeException("article content too large"));
 	}
 
@@ -168,10 +172,10 @@ class article {
 	 * @return \DateTime value of article date
 	 **/
 	public function getArticleDate() : \DateTime {
-	return ($this->tweetDate);
+	return ($this->articleDate);
 	}
 
-	/** mutator mthod for article content date
+	/** mutator method for article content date
 	 *
 	 * @param \DateTime|string|null $newArticleDate article date as a DateTime object or string (or null to load the current time)
 	 * @throws \InvalidArgumentException if $newArticleDate is not a valid object or string
@@ -240,7 +244,7 @@ class article {
 	public function update(\PDO $pdo) : void {
 
 		//create query template
-		$query = "UPDATE article SET articleCategoryIdId = :articleCategoryID, articleContent = :articleContent, articleDate = :articleDate WHERE articleId = :articleId:";
+		$query = "UPDATE article SET articleCategoryId = :articleCategoryID, articleContent = :articleContent, articleDate = :articleDate WHERE articleId = :articleId:";
 		$statement = $pdo->prepare($query);
 
 
@@ -264,7 +268,7 @@ public static function getArticleByArticleId(\PDO $pdo, $articleId) : ?article {
 		throw(new \PDOException($exception->getMessage(), 0, $exception));
 	}
 	// create query template
-	$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleId = :articleId";
+	$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article WHERE articleId = articleId";
 	$statement = $pdo->prepare($query);
 	// bind the article id to the place holder in the template
 	$parameters = ["articleId" => $articleId->getBytes()];
@@ -311,7 +315,7 @@ public static function getArticleByArticleId(\PDO $pdo, $articleId) : ?article {
 		$statement = $pdo->prepare($query);
 
 		//bind the article content to the place holder in the template
-		$articleContent = "%articleContent%";
+		$articleContent = "$articleContent";
 		$parameters = ["articleContent" => $articleContent];
 		$statement->execute($parameters);
 
@@ -342,11 +346,11 @@ public static function getArticleByArticleId(\PDO $pdo, $articleId) : ?article {
 		// create query template
 		$query = "SELECT articleId, articleCategoryId, articleContent, articleDate FROM article";
 		$statement = $pdo->prepare($query);
-		//TODO
+
 		/** Build an  array of articles - SPl fixed array command  */
 		$articles=new \SplFixedArray($statement->rowCount());
 		$statement->setFetchMode( \PDO::FECTH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
+		while(false !== ($row = $statement->fetch())) {
 			try {
 				$article = new Article($row["articleId"], $row["articleCategoryId"], $row["articleContent"], $row["articleDate"]);
 				$articles[$articles->key()] = $article;
